@@ -5,17 +5,19 @@ app.use(express.json());
 
 let operarios = [
     {
-        id: 1722308400000,
+        id: 12345,
         nome: 'Jucenal',
         dataNascimento: '15.05.2002',
         sexo: 'masculino'
     }
 ];
 
-app.get('/', (req, res) =>{
+//mensagem inicial
+app.get('/', (req, res) => {
     res.send('Banco de funcionários da Metalúrgica Cruz & Cia.')
 })
 
+//mostra a lista de operários ativos na fábrica
 app.get('/operarios', (req, res) => {
     res.json(operarios);
 });
@@ -26,16 +28,18 @@ app.get('/operarios/:id', (req, res) => {
 
     if (!operario) {
         return res.status(404).send('Operário não encontrado.');
-    }
-    res.json(operario);
+    } else
+
+        res.json(operario)
 });
 
+//cadastramos uma nova operária
 app.post('/operarios', (req, res) => {
     const novoOperario = {
-        id: Date.now(),
-        nome: req.body.nome,
-        dataNascimento: req.body.dataNascimento,
-        sexo: req.body.sexo
+        id: 56789,
+        nome: 'Ana Silva',
+        dataNascimento: '10.10.2003',
+        sexo: 'feminino'
     };
     operarios.push(novoOperario);
     res.status(201).json(novoOperario);
@@ -49,17 +53,19 @@ app.put('/operarios/:id', (req, res) => {
         return res.status(404).send('Operário não encontrado.');
     }
 
+    //precisamos atualizar o objeto de ID 12345, que está sem sobrenome e sua data está incorreta
     const operarioAtualizado = {
-        id: id,
-        nome: req.body.nome,
-        dataNascimento: req.body.dataNascimento,
-        sexo: req.body.sexo
+        id: 12345,
+        nome: 'Jucenal Santos',
+        dataNascimento: '01.01.2003',
+        sexo: 'masculino'
     };
 
     operarios[index] = operarioAtualizado;
     res.json(operarioAtualizado);
 });
 
+//simula o desligamento de um funcionário
 app.delete('/operarios/:id', (req, res) => {
     const id = parseInt(req.params.id);
     const index = operarios.findIndex(o => o.id === id);
