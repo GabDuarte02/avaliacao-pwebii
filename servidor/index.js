@@ -64,7 +64,27 @@ app.put('/operarios/:id', (req, res) => {
     operarios[index] = operarioAtualizado;
     res.json(operarioAtualizado);
 });
+app.patch('/operarios/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const index = operarios.findIndex(o => o.id === id);
 
+    if (index === -1) {
+        return res.status(404).send('Operário não encontrado.');
+    }
+
+    const operarioExistente = operarios[index];
+    const dadosParaAtualizar = req.body;
+
+    const operarioAtualizado = {
+        ...operarioExistente, 
+        ...dadosParaAtualizar
+    };
+    
+    operarioAtualizado.id = id;
+
+    operarios[index] = operarioAtualizado;
+    res.json(operarioAtualizado);
+});
 //simula o desligamento de um funcionário
 app.delete('/operarios/:id', (req, res) => {
     const id = parseInt(req.params.id);
