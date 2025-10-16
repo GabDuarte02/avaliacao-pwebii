@@ -14,7 +14,7 @@ function cadastraFilme() {
 function cadastraCliente () {
     return {
         id: 0,
-        cpf: 0,
+        cpf: '',
         nome: '',
         loacao: {
             alugados: [],
@@ -30,25 +30,43 @@ function cadastraFornecedor () {
     return {
         id: 0,
         nome: '',
-        contato: 0
+        contato: ''
     }
 };
 
 let acervoFilmes = [];
 
 const maquinaMortifera = cadastraFilme();
-maquinaMortifera.titulo = 'Máquina Mortífera'
-maquinaMortifera.diretor = 'Richard Donner'
-maquinaMortifera.genero = 'Ação'
+maquinaMortifera.titulo = 'Máquina Mortífera';
+maquinaMortifera.diretor = 'Richard Donner';
+maquinaMortifera.genero = 'Ação';
+acervoFilmes.push(maquinaMortifera);
 
-acervoFilmes.push(maquinaMortifera)
+let clientela = [];
+
+const cliente1 = cadastraCliente();
+cliente1.id = 12345;
+cliente1.cpf = '123.456.789-10';
+cliente1.nome = 'Johnny McLovin';
+clientela.push(cliente1);
+
+let fornecedores = [];
+
+const embraFilmes = cadastraFornecedor();
+embraFilmes.id = 177777;
+embraFilmes.nome = 'Embra Filmes co.'
+embraFilmes.contato = '+55 (12) 3456-7890'
 
 app.get('/', (req, res) => {
-    res.send('SITE: LOCADORA SHOE-LEATHER')
+    res.send('SITE: LOCADORA SHOE-LEATHER');
+});
+
+app.get('/clientes', (req, res) => {
+    res.json(clientela);
 });
 
 app.get('/acervo', (req, res) => {
-    res.json(acervoFilmes)
+    res.json(acervoFilmes);
 });
 
 const port = 3000;
