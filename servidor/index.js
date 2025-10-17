@@ -1,61 +1,48 @@
 const express = require('express');
 const app = express();
 
-function cadastraFilme() {
-    return {
-        titulo: '',
-        diretor: '',
-        genero: '',
-        dataLocacao: 0,
-        dataDevolucao: 0
+class Filme {
+    #titulo;
+    #diretor;
+    #genero;
+    #dataLocacao;
+    #dataDevolucao;
+
+    constructor(titulo, direto, genero, dataLocacao, dataDevolucao){
+        this.titulo = titulo;
+        this.diretor = diretor;
+        this.genero = genero;
+
+        this.dataLocacao = null;
+        this.dataDevolucao = null;
+    }
+
+    get titulo () {
+        return this.#titulo
     }
 };
 
-function cadastraCliente () {
-    return {
-        id: 0,
-        cpf: '',
-        nome: '',
-        loacao: {
-            alugados: [],
-            pendencias: {
-                multa: 0,
-                itensAtrasados: []
-            }
-        },
-    }
-};
+class Cliente {
+    #carteira
+    #cpf
+    #nome
+    #locacoes
+    #pendencias
+}
 
-function cadastraFornecedor () {
-    return {
-        id: 0,
-        nome: '',
-        contato: ''
-    }
-};
+class Fornecedor {
+    #id
+    #cnpj
+    #nome
+    #contato
+}
 
-let acervoFilmes = [];
-
-const maquinaMortifera = cadastraFilme();
-maquinaMortifera.titulo = 'Máquina Mortífera';
-maquinaMortifera.diretor = 'Richard Donner';
-maquinaMortifera.genero = 'Ação';
-acervoFilmes.push(maquinaMortifera);
-
-let clientela = [];
-
-const cliente1 = cadastraCliente();
-cliente1.id = 12345;
-cliente1.cpf = '123.456.789-10';
-cliente1.nome = 'Johnny McLovin';
-clientela.push(cliente1);
-
-let fornecedores = [];
-
-const embraFilmes = cadastraFornecedor();
-embraFilmes.id = 177777;
-embraFilmes.nome = 'Embra Filmes co.'
-embraFilmes.contato = '+55 (12) 3456-7890'
+class Funcionario {
+    #matricula
+    #cpf
+    #nome
+    #especialidade
+}
 
 app.get('/', (req, res) => {
     res.send('SITE: LOCADORA SHOE-LEATHER');
