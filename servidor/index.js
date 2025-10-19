@@ -3,22 +3,23 @@ const app = express()
 const prompt = require('prompt-sync')()
 
 class Filme {
-    #codigo
-    #titulo
-    #diretor
-    #genero
-    #tipoMidia
-    #dataLocacao
-    #dataDevolucao
+    _codigo
+    _titulo
+    _diretor
+    _genero
+    _tipoMidia
+    _dataLocacao
+    _dataDevolucao
 
     constructor(codigo, titulo, diretor, genero, tipoMidia) {
+        this.codigo = codigo
         this.titulo = titulo
         this.diretor = diretor
         this.genero = genero
     }
 
     get codigo() {
-        return this.#codigo
+        return this._codigo
     }
 
     set codigo(novoCodigo) {
@@ -26,60 +27,60 @@ class Filme {
             throw new Error('Código inválido. Tente novamente.')
         }
 
-        this.#codigo = novoCodigo
+        this._codigo = novoCodigo
     }
 
     get titulo() {
-        return this.#titulo
+        return this._titulo
     }
 
     set titulo(novoTitulo) {
         if (typeof novoTitulo !== 'string' || novoTitulo.trim() === '') {
             throw new Error('Por favor, informe um título válido a ser cadastrado.')
         }
-        this.#titulo = novoTitulo.toUpperCase()
+        this._titulo = novoTitulo.toUpperCase()
     }
 
     get diretor() {
-        return this.#diretor
+        return this._diretor
     }
 
     set diretor(novoDiretor) {
         if (typeof novoDiretor !== 'string' || novoDiretor.trim() === '') {
             throw new Error('Por favor, informe um diretor válido a ser cadastrado.')
         }
-        this.#diretor = novoDiretor.toUpperCase()
+        this._diretor = novoDiretor.toUpperCase()
     }
 
     get genero() {
-        return this.#genero
+        return this._genero
     }
 
     set genero(novoGenero) {
         if (typeof novoGenero !== 'string' || novoGenero.trim() === '') {
             throw new Error('Por favor, informe um gênero válido a ser cadastrado.')
         }
-        this.#genero = novoGenero.toUpperCase()
+        this._genero = novoGenero.toUpperCase()
     }
     
     get tipoMidia() {
-        return this.#tipoMidia
+        return this._tipoMidia
     }
 
     set tipoMidia(novoTipoMidia) {
         if(typeof novoTipoMidia !== 'string' || novoTipoMidia.trim() === '') {
             throw new Error('Tipo de Mídia inválido. Tente novamente.')
         }
-        this.#tipoMidia = novoTipoMidia.toUpperCase()
+        this._tipoMidia = novoTipoMidia.toUpperCase()
     }
 }
 
 class Cliente {
-    #numeroCarteira
-    #cpf
-    #nome
-    #locacoes
-    #pendencias
+    _numeroCarteira
+    _cpf
+    _nome
+    _locacoes
+    _pendencias
 
     constructor(numeroCarteira, cpf, nome) {
         this.numeroCarteira = numeroCarteira
@@ -88,18 +89,18 @@ class Cliente {
     }
 
     get numeroCarteira() {
-        return this.#numeroCarteira
+        return this._numeroCarteira
     }
 
     set numeroCarteira(novoNumeroCarteira) {
         if (typeof novoNumeroCarteira !== 'String' || novoNumeroCarteira.trim() === '') {
             throw new Error('Número de carteirinha inválido. Tente novamente.')
         }
-        this.#numeroCarteira = novoNumeroCarteira
+        this._numeroCarteira = novoNumeroCarteira
     }
 
     get cpf() {
-        return this.#cpf
+        return this._cpf
     }
 
     set cpf(novoCpf) {
@@ -110,11 +111,11 @@ class Cliente {
         } else if (novoCpf.split('').length > 11) {
             throw new Error('O CPF informado é muito grande, informe corretamente.')
         }
-        this.#cpf = novoCpf
+        this._cpf = novoCpf
     }
 
     get nome() {
-        return this.#nome
+        return this._nome
     }
 
     set nome(novoNome) {
@@ -124,15 +125,15 @@ class Cliente {
             throw new Error('Por favor, digite nome e sobrenome para o cadastro.')
         }
 
-        this.#nome = novoNome.toUpperCase()
+        this._nome = novoNome.toUpperCase()
     }
 }
 
 class Funcionario {
-    #matricula
-    #cpf
-    #nome
-    #funcao
+    _matricula
+    _cpf
+    _nome
+    _funcao
 
     constructor(matricula, cpf, nome, funcao) {
         this.matricula = matricula
@@ -142,18 +143,18 @@ class Funcionario {
     }
 
     get matricula() {
-        return this.#matricula
+        return this._matricula
     }
 
     set matricula(novaMatricula) {
         if (typeof novaMatricula !== 'number') {
             throw new Error('Matrícula inválida. Tente novamente.')
         }
-        this.#matricula = novaMatricula
+        this._matricula = novaMatricula
     }
 
     get cpf() {
-        return this.#cpf
+        return this._cpf
     }
 
     set cpf(novoCpf) {
@@ -164,11 +165,11 @@ class Funcionario {
         } else if (novoCpf.split('').length > 11) {
             throw new Error('O CPF informado é muito grande, informe corretamente.')
         }
-        this.#cpf = novoCpf
+        this._cpf = novoCpf
     }
 
     get nome() {
-        return this.#nome
+        return this._nome
     }
 
     set nome(novoNome) {
@@ -178,26 +179,26 @@ class Funcionario {
             throw new Error('Por favor, digite nome e sobrenome para o cadastro.')
         }
 
-        this.#nome = novoNome.toUpperCase()
+        this._nome = novoNome.toUpperCase()
     }
 
     get funcao() {
-        return this.#funcao
+        return this._funcao
     }
 
     set funcao(novaFuncao) {
         if (typeof novaFuncao !== 'string' || novaFuncao.trim() === '') {
             throw new Error('Função inválida. Tente novamente.')
         }
-        this.#funcao = novaFuncao.toUpperCase()
+        this._funcao = novaFuncao.toUpperCase()
     }
 }
 
 class Fornecedor {
-    #id
-    #cnpj
-    #nome
-    #contato
+    _id
+    _cnpj
+    _nome
+    _contato
 
     constructor(id, cnpj, nome, contato) {
         this.id = id
@@ -207,17 +208,18 @@ class Fornecedor {
     }
 
     get id() {
-        return this.#id
+        return this._id
     }
     
     set id(novoId) {
         if (typeof novoId !== 'number') {
             throw new Error('ID inválido. Tente novamente.')
         }
+        this._id = novoId
     }
 
     get cnpj() {
-        return this.#cnpj
+        return this._cnpj
     }
 
     set cnpj(novoCnpj) {
@@ -228,11 +230,11 @@ class Fornecedor {
         } else if (novoCnpj.split('').length > 14) {
             throw new Error('O CNPJ informado é muito grande, informe corretamente.')
         }
-        this.#cnpj = novoCnpj
+        this._cnpj = novoCnpj
     }
 
     get nome() {
-        return this.#nome
+        return this._nome
     }
 
     set nome(novoNome) {
@@ -242,11 +244,11 @@ class Fornecedor {
             throw new Error('Por favor, digite nome e sobrenome para o cadastro.')
         }
 
-        this.#nome = novoNome.toUpperCase()
+        this._nome = novoNome.toUpperCase()
     }
 
     get contato() {
-        return this.#contato
+        return this._contato
     }
 
     set contato(novoContato) {
@@ -254,7 +256,7 @@ class Fornecedor {
             throw new Error('Contato inválido. Tente novamente.')
         }
 
-        this.#contato = novoContato.toUpperCase()
+        this._contato = novoContato.toUpperCase()
     }
 }
 
@@ -297,7 +299,6 @@ function cadastraCliente() {
         const novoCliente = new Cliente(numeroCarteira, cpf, nome)
         clientela.push(novoCliente)
 
-        console.log(`\nCliente ${novoCliente.nome} cadastrado com sucesso!`)
         return novoCliente
     }
     catch(erro) {
@@ -316,7 +317,6 @@ function cadastraFuncionario() {
         const novoFuncionario = new Funcionario(matricula, cpf, nome, funcao)
         funcionarios.push(novoFuncionario)
 
-        console.log(`\nFuncionário ${novoFuncionario.nome} cadastrado com sucesso!`)
         return novoFuncionario
     }
     catch(erro) {
@@ -336,7 +336,6 @@ function cadastraFornecedor() {
         const novoFornecedor = new Fornecedor(id, cnpj, nome, contato)
         fornecedores.push(novoFornecedor)
 
-        console.log(`Fornecedor ${novoFornecedor.nome} cadastrado com sucesso!`)
         return novoFornecedor
     }
     catch(erro) {
@@ -353,12 +352,60 @@ app.get('/', (req, res) => {
     res.send('SITE: LOCADORA SHOE-LEATHER')
 })
 
+app.get('/acervo', (req, res) => {
+    res.json(acervoFilmes)
+})
+
 app.get('/clientes', (req, res) => {
     res.json(clientela)
 })
 
-app.get('/acervo', (req, res) => {
-    res.json(acervoFilmes)
+app.get('/funcionarios', (req, res) => {
+    res.json(funcionarios)
+})
+
+app.get('/fornecedores', (req, res) => {
+    res.json(fornecedores)
+})
+
+app.post('/cadastrar-filme', (req, res) => {
+    const novoFilme = cadastraFilme();
+
+    if (novoFilme) {
+        res.send(`O filme ${novoFilme._titulo} foi cadastrado com sucesso!`)
+    } else {
+        res.status(400).send('Falha ao cadastrar filme.')
+    }
+})
+
+app.post('/cadastrar-cliente', (req, res) => {
+    const novoCliente = cadastraCliente()
+
+    if (novoCliente) {
+        res.send(`O cliente ${novoCliente._nome} foi cadastrado com sucesso!`)
+    } else {
+        res.status(400).send('Falha ao cadastrar cliente.')
+    }
+})
+
+app.post('/cadastrar-funcionario', (req, res) => {
+    const novoFuncionario = cadastraFuncionario()
+
+    if (novoFuncionario) {
+        res.send(`O funcionario ${novoFuncionario._nome} foi cadastrado com sucesso!`)
+    } else {
+        res.status(400).send('Falha ao cadastrar funcionário.')
+    }
+})
+
+app.post('/cadastrar-fornecedor', (req, res) => {
+    const novoFornecedor = cadastraFornecedor()
+
+     if (novoFornecedor) {
+        res.send(`O fornecedor ${novoFornecedor._nome} foi cadastrado com sucesso!`)
+    } else {
+        res.status(400).send('Falha ao cadastrar fornecedor.')
+    }
 })
 
 const port = 3000
