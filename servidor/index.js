@@ -319,6 +319,7 @@ function numeroCarteirinha() {
 }
 
 function cadastraFilme() {
+    console.log('\n----- CADASTRAR FILME -----')
     try {
         const codigo = Date.now()
         const titulo = prompt('Título: ')
@@ -336,6 +337,7 @@ function cadastraFilme() {
 }
 
 function cadastraCliente() {
+    console.log('\n----- CADASTRAR CLIENTE -----')
     try {
         const numeroCarteira = numeroCarteirinha()
         const cpf = prompt('CPF: ')
@@ -349,22 +351,8 @@ function cadastraCliente() {
     }
 }
 
-function cadastraFornecedor() {
-    try {
-        const id = Date.now()
-        const cnpj = prompt('CNPJ: ')
-        const nome = prompt('Nome da Empresa: ')
-        const contato = prompt('Contato: ')
-        const novoFornecedor = new Fornecedor(id, cnpj, nome, contato)
-        fornecedores.push(novoFornecedor)
-        salvarDados('fornecedores.json', fornecedores)
-        return novoFornecedor
-    } catch (e) {
-        console.log(e.message)
-    }
-}
-
 function cadastraFuncionario() {
+    console.log('\n----- CADASTRAR FUNCIONÁRIO -----')
     try {
         const matricula = Date.now()
         const cpf = prompt('CPF: ')
@@ -374,6 +362,22 @@ function cadastraFuncionario() {
         funcionarios.push(novoFuncionario)
         salvarDados('funcionarios.json', funcionarios)
         return novoFuncionario
+    } catch (e) {
+        console.log(e.message)
+    }
+}
+
+function cadastraFornecedor() {
+    console.log('\n----- CADASTRAR FORNECEDOR -----')
+    try {
+        const id = Date.now()
+        const cnpj = prompt('CNPJ: ')
+        const nome = prompt('Nome da Empresa: ')
+        const contato = prompt('Contato: ')
+        const novoFornecedor = new Fornecedor(id, cnpj, nome, contato)
+        fornecedores.push(novoFornecedor)
+        salvarDados('fornecedores.json', fornecedores)
+        return novoFornecedor
     } catch (e) {
         console.log(e.message)
     }
@@ -449,12 +453,48 @@ function adiaDevolucao(codigoFilme, dias = 3) {
     return { filme, cliente }
 }
 
+function removeFilme(codigo) {
+    const cod = Number(codigo)
+    const index = acervoFilmes.findIndex(f => f._codigo === cod)
+    if (index === -1) throw new Error('Filme não encontrado.')
+    const removido = acervoFilmes.splice(index, 1)[0]
+    salvarDados('acervoFilmes.json', acervoFilmes)
+    return removido
+}
+
+function removeCliente(numeroCarteira) {
+    const carteira = String(numeroCarteira)
+    const index = clientela.findIndex(c => c._numeroCarteira === carteira)
+    if (index === -1) throw new Error('Cliente não encontrado.')
+    const removido = clientela.splice(index, 1)[0]
+    salvarDados('clientela.json', clientela)
+    return removido
+}
+
+function desligaFuncionario(matricula) {
+    const mat = Number(matricula)
+    const index = funcionarios.findIndex(f => f._matricula === mat)
+    if (index === -1) throw new Error('Funcionário não encontrado.')
+    const removido = funcionarios.splice(index, 1)[0]
+    salvarDados('funcionarios.json', funcionarios)
+    return removido
+}
+
+function desligaFornecedor(cnpj) {
+    const c = String(cnpj)
+    const index = fornecedores.findIndex(f => f._cnpj === c)
+    if (index === -1) throw new Error('Fornecedor não encontrado.')
+    const removido = fornecedores.splice(index, 1)[0]
+    salvarDados('fornecedores.json', fornecedores)
+    return removido
+}
+
 let acervoFilmes = lerDados('acervoFilmes.json')
 let clientela = lerDados('clientela.json')
 let funcionarios = lerDados('funcionarios.json')
 let fornecedores = lerDados('fornecedores.json')
 
-app.get('/', (req, res) => res.send('SITE: LOCADORA SHOE-LEATHER'))
+app.get('/', (req, res) => res.send('GERENCIADOR: LOCADORA SHOE-LEATHER'))
 
 app.get('/acervo', (req, res) => res.json(acervoFilmes))
 
@@ -525,6 +565,58 @@ app.patch('/adiar-devolucao/:codigoFilme/:dias', (req, res) => {
         })
     } catch (e) {
         res.status(400).json({ erro: e.message })
+    }
+})
+
+app.delete('/remover-filme/:codigo', (req, res) => {
+    try {
+        const codigo = parseInt(req.params.codigo)
+        const filmeRemovido = removeFilme(codigo)
+        res.json({
+            mensagem: `Filme ${filmeRemovido._titulo} removido com sucesso.`,
+            filmeRemovido
+        })
+    } catch (erro) {
+        res.status(404).json({ erro: erro.message })
+    }
+})
+
+app.delete('/remover-cliente/:numeroCarteira', (req, res) => {
+    try {
+        const numeroCarteira = parseInt(req.params.numeroCarteira)
+        const clienteRemovido = removeCliente(numeroCarteira)
+        res.json({
+            mensagem: `Cliente ${clienteRemovido._nome} removido com sucesso.`,
+            clienteRemovido
+        })
+    } catch (erro) {
+        res.status(404).json({ erro: erro.message })
+    }
+})
+
+app.delete('/desligar-funcionario/:matricula', (req, res) => {
+    try {
+        const matricula = parseInt(req.params.matricula)
+        const funcionarioRemovido = desligaFuncionario(matricula)
+        res.json({
+            mensagem: `Funcionário ${funcionarioRemovido._nome} desligado com sucesso.`,
+            funcionarioRemovido
+        })
+    } catch (erro) {
+        res.status(404).json({ erro: erro.message })
+    }
+})
+
+app.delete('/desligar-fornecedor/:cnpj', (req, res) => {
+    try {
+        const cnpj = parseInt(req.params.cnpj)
+        const fornecedorRemovido = desligaFornecedor(cnpj)
+        res.json({
+            mensagem: `Fornecedor ${fornecedorRemovido._nome} removido com sucesso.`,
+            fornecedorRemovido
+        })
+    } catch (erro) {
+        res.status(404).json({ erro: erro.message })
     }
 })
 
