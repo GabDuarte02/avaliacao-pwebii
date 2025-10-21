@@ -416,38 +416,6 @@ function alugaFilme(codigoFilme, numeroCarteira) {
     return { filme, cliente }
 }
 
-function devolveFilme(codigoFilme, numeroCarteira) {
-    const filme = acervoFilmes.find(f => f.codigo === codigoFilme)
-    const cliente = clientela.find(c => c.numeroCarteira === numeroCarteira)
-
-    if (!filme) {
-        throw new Error('Filme não encontrado.')
-    }
-
-    if (!cliente) {
-        throw new Error('Cliente não encontrado.')
-    }
-
-    if (filme.dataLocacao === 0 || filme.alugadoPor === null) {
-        throw new Error('Este filme não está alugado.')
-    }
-
-    if (filme.alugadoPor !== cliente.numeroCarteira) {
-        throw new Error('Este filme não foi alugado por este cliente.')
-    }
-
-    const indexLocacao = cliente.locacoes.findIndex(l => l.codigo === codigoFilme)
-    if (indexLocacao !== -1) {
-        cliente.locacoes.splice(indexLocacao, 1)
-    }
-
-    filme.dataLocacao = 0
-    filme.dataDevolucao = 0
-    filme.alugadoPor = null
-
-    return filme
-}
-
 function adiaDevolucao(codigoFilme, dias = 3) {
     const filme = acervoFilmes.find(f => f._codigo == codigoFilme)
 
@@ -543,22 +511,6 @@ app.put('/alugar-filme/:codigoFilme/:numeroCarteira', (req, res) => {
         })
     } catch (e) {
         res.status(400).json({ erro: e.message })
-    }
-})
-
-app.put('/devolve-filme/:codigoFilme/:numeroCarteira', (req, res) => {
-    try {
-        const codigoFilme = parseInt(req.params.codigoFilme)
-        const numeroCarteira = parseInt(req.params.numeroCarteira)
-
-        const filmeDevolvido = devolveFilme(codigoFilme, numeroCarteira)
-
-        res.json({
-            mensagem: `Filme "${filmeDevolvido.titulo}" devolvido com sucesso pelo cliente ${numeroCarteira}.`,
-            filme: filmeDevolvido
-        })
-    } catch (erro) {
-        res.status(400).json({ erro: erro.message })
     }
 })
 
