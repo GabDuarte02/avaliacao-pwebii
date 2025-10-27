@@ -1,111 +1,53 @@
 const express = require('express')
 const app = express()
-const prompt = require('prompt-sync')()
 const fs = require('fs')
 
+app.use(express.json()) // importante para receber JSON no body
+
+// ------------------- CLASSES -------------------
 class Filme {
     _codigo
     _titulo
     _diretor
     _genero
     _tipoMidia
-    _dataLocacao
-    _dataDevolucao
-    _fornecidoPor
-    _alugadoPor
 
-    constructor(codigo, titulo, diretor, genero, tipoMidia, fornecidoPor) {
+    constructor(codigo, titulo, diretor, genero, tipoMidia) {
         this.codigo = codigo
         this.titulo = titulo
         this.diretor = diretor
         this.genero = genero
         this.tipoMidia = tipoMidia
-        this.fornecidoPor = fornecidoPor
-        this._dataLocacao = 0
-        this._dataDevolucao = 0
-        this._alugadoPor = null
     }
 
-    get codigo() {
-        return this._codigo
+    get codigo() { return this._codigo }
+    set codigo(valor) { 
+        if (typeof valor !== 'number') throw new Error('Código inválido.')
+        this._codigo = valor 
     }
 
-    set codigo(novoCodigo) {
-        if (typeof novoCodigo !== 'number') {
-            throw new Error('Código inválido.')
-        }
-        this._codigo = novoCodigo
+    get titulo() { return this._titulo }
+    set titulo(valor) { 
+        if (typeof valor !== 'string' || !valor.trim()) throw new Error('Título inválido.')
+        this._titulo = valor.toUpperCase() 
     }
 
-    get titulo() {
-        return this._titulo
+    get diretor() { return this._diretor }
+    set diretor(valor) { 
+        if (typeof valor !== 'string' || !valor.trim()) throw new Error('Diretor inválido.')
+        this._diretor = valor.toUpperCase() 
     }
 
-    set titulo(novoTitulo) {
-        if (typeof novoTitulo !== 'string' || novoTitulo.trim() === '') {
-            throw new Error('Título inválido.')
-        }
-        this._titulo = novoTitulo.toUpperCase()
+    get genero() { return this._genero }
+    set genero(valor) { 
+        if (typeof valor !== 'string' || !valor.trim()) throw new Error('Gênero inválido.')
+        this._genero = valor.toUpperCase() 
     }
 
-    get diretor() {
-        return this._diretor
-    }
-
-    set diretor(novoDiretor) {
-        if (typeof novoDiretor !== 'string' || novoDiretor.trim() === '') {
-            throw new Error('Diretor inválido.')
-        }
-        this._diretor = novoDiretor.toUpperCase()
-    }
-
-    get genero() {
-        return this._genero
-    }
-
-    set genero(novoGenero) {
-        if (typeof novoGenero !== 'string' || novoGenero.trim() === '') {
-            throw new Error('Gênero inválido.')
-        }
-        this._genero = novoGenero.toUpperCase()
-    }
-
-    get tipoMidia() {
-        return this._tipoMidia
-    }
-
-    set tipoMidia(novoTipoMidia) {
-        if (typeof novoTipoMidia !== 'string' || novoTipoMidia.trim() === '') {
-            throw new Error('Tipo de mídia inválido.')
-        }
-        this._tipoMidia = novoTipoMidia.toUpperCase()
-    }
-
-    get fornecidoPor() {
-        return this._fornecidoPor
-    }
-
-    set fornecidoPor(fornecedor) {
-        if (typeof fornecedor !== 'string' || fornecedor.trim() === '') {
-            throw new Error('Fornecedor inválido.')
-        }
-        this._fornecidoPor = fornecedor.toUpperCase()
-    }
-
-    get dataLocacao() {
-        return this._dataLocacao
-    }
-
-    set dataLocacao(valor) {
-        this._dataLocacao = valor
-    }
-
-    get dataDevolucao() {
-        return this._dataDevolucao
-    }
-
-    set dataDevolucao(valor) {
-        this._dataDevolucao = valor
+    get tipoMidia() { return this._tipoMidia }
+    set tipoMidia(valor) { 
+        if (typeof valor !== 'string' || !valor.trim()) throw new Error('Tipo de mídia inválido.')
+        this._tipoMidia = valor.toUpperCase() 
     }
 }
 
@@ -114,200 +56,112 @@ class Cliente {
     _cpf
     _nome
     _locacoes
-    _pendencias
+    _historico
 
     constructor(numeroCarteira, cpf, nome) {
         this.numeroCarteira = numeroCarteira
         this.cpf = cpf
         this.nome = nome
         this._locacoes = []
-        this._pendencias = []
+        this._historico = []
     }
 
-    get numeroCarteira() {
-        return this._numeroCarteira
+    get numeroCarteira() { return this._numeroCarteira }
+    set numeroCarteira(valor) { 
+        if (typeof valor !== 'string' || !valor.trim()) throw new Error('Carteira inválida.')
+        this._numeroCarteira = valor 
     }
 
-    set numeroCarteira(novoNumeroCarteira) {
-        if (typeof novoNumeroCarteira !== 'string' || novoNumeroCarteira.trim() === '') {
-            throw new Error('Carteira inválida.')
-        }
-        this._numeroCarteira = novoNumeroCarteira
+    get cpf() { return this._cpf }
+    set cpf(valor) { 
+        if (typeof valor !== 'string' || valor.length !== 11) throw new Error('CPF deve ter 11 dígitos.')
+        this._cpf = valor 
     }
 
-    get cpf() {
-        return this._cpf
+    get nome() { return this._nome }
+    set nome(valor) { 
+        if (typeof valor !== 'string' || valor.split(' ').length < 2) throw new Error('Informe nome e sobrenome.')
+        this._nome = valor.toUpperCase() 
     }
 
-    set cpf(novoCpf) {
-        if (typeof novoCpf !== 'string' || novoCpf.trim() === '') {
-            throw new Error('CPF inválido.')
-        }
-        if (novoCpf.length !== 11) {
-            throw new Error('CPF deve ter 11 dígitos.')
-        }
-        this._cpf = novoCpf
-    }
+    get locacoes() { return this._locacoes }
+    set locacoes(valor) { this._locacoes = valor }
 
-    get nome() {
-        return this._nome
-    }
-
-    set nome(novoNome) {
-        if (typeof novoNome !== 'string' || novoNome.trim() === '') {
-            throw new Error('Nome inválido.')
-        }
-        if (novoNome.split(' ').length < 2) {
-            throw new Error('Informe nome e sobrenome.')
-        }
-        this._nome = novoNome.toUpperCase()
-    }
-
-    get locacoes() {
-        return this._locacoes
-    }
-
-    set locacoes(novasLocacoes) {
-        this._locacoes = novasLocacoes
-    }
-
-    get pendencias() {
-        return this._pendencias
-    }
-
-    set pendencias(novasPendencias) {
-        this._pendencias = novasPendencias
-    }
+    get historico() { return this._historico }
+    set historico(valor) { this._historico = valor }
 }
 
-class Funcionario {
-    _matricula
-    _cpf
-    _nome
-    _funcao
+class Locacao {
+    _codigo
+    _codigoFilme
+    _numeroCarteira
+    _dataLocacao
+    _dataDevolucaoPrevista
+    _devolucaoEfetiva
 
-    constructor(matricula, cpf, nome, funcao) {
-        this.matricula = matricula
-        this.cpf = cpf
-        this.nome = nome
-        this.funcao = funcao
+    constructor(codigo, codigoFilme, numeroCarteira, dataLocacao, dataDevolucaoPrevista, devolucaoEfetiva = null) {
+        this.codigo = codigo
+        this.codigoFilme = codigoFilme
+        this.numeroCarteira = numeroCarteira
+        this.dataLocacao = dataLocacao
+        this.dataDevolucaoPrevista = dataDevolucaoPrevista
+        this.devolucaoEfetiva = devolucaoEfetiva
     }
 
-    get matricula() {
-        return this._matricula
-    }
+    get codigo() { return this._codigo }
+    set codigo(valor) { this._codigo = valor }
 
-    set matricula(novaMatricula) {
-        if (typeof novaMatricula !== 'number') {
-            throw new Error('Matrícula inválida.')
-        }
-        this._matricula = novaMatricula
-    }
+    get codigoFilme() { return this._codigoFilme }
+    set codigoFilme(valor) { this._codigoFilme = valor }
 
-    get cpf() {
-        return this._cpf
-    }
+    get numeroCarteira() { return this._numeroCarteira }
+    set numeroCarteira(valor) { this._numeroCarteira = valor }
 
-    set cpf(novoCpf) {
-        if (typeof novoCpf !== 'string' || novoCpf.trim() === '') {
-            throw new Error('CPF inválido.')
-        }
-        if (novoCpf.length !== 11) {
-            throw new Error('CPF deve ter 11 dígitos.')
-        }
-        this._cpf = novoCpf
-    }
+    get dataLocacao() { return this._dataLocacao }
+    set dataLocacao(valor) { this._dataLocacao = valor }
 
-    get nome() {
-        return this._nome
-    }
+    get dataDevolucaoPrevista() { return this._dataDevolucaoPrevista }
+    set dataDevolucaoPrevista(valor) { this._dataDevolucaoPrevista = valor }
 
-    set nome(novoNome) {
-        if (typeof novoNome !== 'string' || novoNome.trim() === '') {
-            throw new Error('Nome inválido.')
-        }
-        this._nome = novoNome.toUpperCase()
-    }
-
-    get funcao() {
-        return this._funcao
-    }
-
-    set funcao(novaFuncao) {
-        if (typeof novaFuncao !== 'string' || novaFuncao.trim() === '') {
-            throw new Error('Função inválida.')
-        }
-        this._funcao = novaFuncao.toUpperCase()
-    }
+    get devolucaoEfetiva() { return this._devolucaoEfetiva }
+    set devolucaoEfetiva(valor) { this._devolucaoEfetiva = valor }
 }
 
-class Fornecedor {
-    _id
-    _cnpj
-    _nome
-    _contato
+class Historico {
+    _codigo
+    _codigoFilme
+    _numeroCarteira
+    _dataLocacao
+    _devolucaoEfetiva
 
-    constructor(id, cnpj, nome, contato) {
-        this.id = id
-        this.cnpj = cnpj
-        this.nome = nome
-        this.contato = contato
+    constructor(codigo, codigoFilme, numeroCarteira, dataLocacao, devolucaoEfetiva) {
+        this.codigo = codigo
+        this.codigoFilme = codigoFilme
+        this.numeroCarteira = numeroCarteira
+        this.dataLocacao = dataLocacao
+        this.devolucaoEfetiva = devolucaoEfetiva
     }
 
-    get id() {
-        return this._id
-    }
+    get codigo() { return this._codigo }
+    set codigo(valor) { this._codigo = valor }
 
-    set id(novoId) {
-        if (typeof novoId !== 'number') {
-            throw new Error('ID inválido.')
-        }
-        this._id = novoId
-    }
+    get codigoFilme() { return this._codigoFilme }
+    set codigoFilme(valor) { this._codigoFilme = valor }
 
-    get cnpj() {
-        return this._cnpj
-    }
+    get numeroCarteira() { return this._numeroCarteira }
+    set numeroCarteira(valor) { this._numeroCarteira = valor }
 
-    set cnpj(novoCnpj) {
-        if (typeof novoCnpj !== 'string' || novoCnpj.trim() === '') {
-            throw new Error('CNPJ inválido.')
-        }
-        if (novoCnpj.length !== 14) {
-            throw new Error('CNPJ deve ter 14 dígitos.')
-        }
-        this._cnpj = novoCnpj
-    }
+    get dataLocacao() { return this._dataLocacao }
+    set dataLocacao(valor) { this._dataLocacao = valor }
 
-    get nome() {
-        return this._nome
-    }
-
-    set nome(novoNome) {
-        if (typeof novoNome !== 'string' || novoNome.trim() === '') {
-            throw new Error('Nome inválido.')
-        }
-        this._nome = novoNome.toUpperCase()
-    }
-
-    get contato() {
-        return this._contato
-    }
-
-    set contato(novoContato) {
-        if (typeof novoContato !== 'string' || novoContato.trim() === '') {
-            throw new Error('Contato inválido.')
-        }
-        this._contato = novoContato.toUpperCase()
-    }
+    get devolucaoEfetiva() { return this._devolucaoEfetiva }
+    set devolucaoEfetiva(valor) { this._devolucaoEfetiva = valor }
 }
+
+// ------------------- ARQUIVOS -------------------
 function lerDados(arquivo) {
-    try {
-        const dados = fs.readFileSync(arquivo, 'utf8')
-        return JSON.parse(dados)
-    } catch {
-        return []
-    }
+    try { return JSON.parse(fs.readFileSync(arquivo, 'utf8')) }
+    catch { return [] }
 }
 
 function salvarDados(arquivo, dados) {
@@ -318,225 +172,111 @@ function numeroCarteirinha() {
     return String(Math.floor(Math.random() * 100000)).padStart(5, '0')
 }
 
-function cadastraFilme() {
-    console.log('\n----- CADASTRAR FILME -----')
-    try {
-        const codigo = Date.now()
-        const titulo = prompt('Título: ')
-        const diretor = prompt('Diretor: ')
-        const genero = prompt('Gênero: ')
-        const tipoMidia = prompt('Tipo de Mídia: ')
-        const fornecidoPor = prompt('Fornecedor: ')
-        const novoFilme = new Filme(codigo, titulo, diretor, genero, tipoMidia, fornecidoPor)
-        acervoFilmes.push(novoFilme)
-        salvarDados('acervoFilmes.json', acervoFilmes)
-        return novoFilme
-    } catch (e) {
-        console.log(e.message)
-    }
+// ------------------- ARRAYS -------------------
+let acervoFilmes = lerDados('acervoFilmes.json')
+let clientela = lerDados('clientela.json')
+let locacoes = lerDados('locacoes.json')
+let historico = lerDados('historico.json')
+
+// ------------------- FUNÇÕES -------------------
+function cadastraFilme(data) {
+    const { titulo, diretor, genero, tipoMidia } = data
+    const codigo = Date.now()
+    const novoFilme = new Filme(codigo, titulo, diretor, genero, tipoMidia)
+    acervoFilmes.push(novoFilme)
+    salvarDados('acervoFilmes.json', acervoFilmes)
+    return novoFilme
 }
 
-function cadastraCliente() {
-    console.log('\n----- CADASTRAR CLIENTE -----')
-    try {
-        const numeroCarteira = numeroCarteirinha()
-        const cpf = prompt('CPF: ')
-        const nome = prompt('Nome Completo: ')
-        const novoCliente = new Cliente(numeroCarteira, cpf, nome)
-        clientela.push(novoCliente)
-        salvarDados('clientela.json', clientela)
-        return novoCliente
-    } catch (e) {
-        console.log(e.message)
-    }
-}
-
-function cadastraFuncionario() {
-    console.log('\n----- CADASTRAR FUNCIONÁRIO -----')
-    try {
-        const matricula = Date.now()
-        const cpf = prompt('CPF: ')
-        const nome = prompt('Nome Completo: ')
-        const funcao = prompt('Função: ')
-        const novoFuncionario = new Funcionario(matricula, cpf, nome, funcao)
-        funcionarios.push(novoFuncionario)
-        salvarDados('funcionarios.json', funcionarios)
-        return novoFuncionario
-    } catch (e) {
-        console.log(e.message)
-    }
-}
-
-function cadastraFornecedor() {
-    console.log('\n----- CADASTRAR FORNECEDOR -----')
-    try {
-        const id = Date.now()
-        const cnpj = prompt('CNPJ: ')
-        const nome = prompt('Nome da Empresa: ')
-        const contato = prompt('Contato: ')
-        const novoFornecedor = new Fornecedor(id, cnpj, nome, contato)
-        fornecedores.push(novoFornecedor)
-        salvarDados('fornecedores.json', fornecedores)
-        return novoFornecedor
-    } catch (e) {
-        console.log(e.message)
-    }
+function cadastraCliente(data) {
+    const { cpf, nome } = data
+    const numeroCarteira = numeroCarteirinha()
+    const novoCliente = new Cliente(numeroCarteira, cpf, nome)
+    clientela.push(novoCliente)
+    salvarDados('clientela.json', clientela)
+    return novoCliente
 }
 
 function alugaFilme(codigoFilme, numeroCarteira) {
-    const filme = acervoFilmes.find(f => f._codigo == codigoFilme)
-    const cliente = clientela.find(c => c._numeroCarteira == numeroCarteira)
-
-    if (!filme) {
-        throw new Error('Filme não encontrado.')
-    }
-
-    if (!cliente) {
-        throw new Error('Cliente não encontrado.')
-    }
-
-    if (filme._dataLocacao !== 0) {
-        throw new Error('Filme já alugado.')
-    }
+    const filme = acervoFilmes.find(f => f._codigo === Number(codigoFilme))
+    const cliente = clientela.find(c => c._numeroCarteira === numeroCarteira)
+    if (!filme) throw new Error('Filme não encontrado.')
+    if (!cliente) throw new Error('Cliente não encontrado.')
+    if (locacoes.some(l => l._codigoFilme === filme._codigo)) throw new Error('Filme já alugado.')
 
     const dataAtual = new Date()
     const dataDevolucao = new Date()
     dataDevolucao.setDate(dataAtual.getDate() + 7)
 
-    filme._dataLocacao = dataAtual.toLocaleDateString('pt-BR')
-    filme._dataDevolucao = dataDevolucao.toLocaleDateString('pt-BR')
-    filme._alugadoPor = numeroCarteira
-
-    cliente._locacoes.push({
-        codigoFilme: filme._codigo,
-        titulo: filme._titulo,
-        dataLocacao: filme._dataLocacao,
-        dataDevolucao: filme._dataDevolucao
-    })
-
-    salvarDados('acervoFilmes.json', acervoFilmes)
-    salvarDados('clientela.json', clientela)
-
-    return { filme, cliente }
-}
-
-function adiaDevolucao(codigoFilme, dias = 3) {
-    const filme = acervoFilmes.find(f => f._codigo == codigoFilme)
-
-    if (!filme) {
-        throw new Error('Filme não encontrado.')
-    }
-
-    if (filme._dataLocacao === 0) {
-        throw new Error('Filme não está alugado.')
-    }
-
-    const cliente = clientela.find(c =>
-        c._locacoes && c._locacoes.some(l => l.codigoFilme == codigoFilme)
+    const codigoLocacao = Date.now()
+    const novaLocacao = new Locacao(
+        codigoLocacao,
+        filme._codigo,
+        cliente._numeroCarteira,
+        dataAtual.toLocaleDateString('pt-BR'),
+        dataDevolucao.toLocaleDateString('pt-BR')
     )
 
-    if (!cliente) {
-        throw new Error('Cliente associado não encontrado.')
+    locacoes.push(novaLocacao)
+    cliente._locacoes.push(codigoLocacao)
+    salvarDados('locacoes.json', locacoes)
+    salvarDados('clientela.json', clientela)
+
+    return { filme, cliente, novaLocacao }
+}
+
+function devolveFilme(codigoFilme) {
+    const indexLocacao = locacoes.findIndex(l => l._codigoFilme === Number(codigoFilme))
+    if (indexLocacao === -1) throw new Error('Filme não encontrado nas locações ativas.')
+
+    const locacaoConcluida = locacoes.splice(indexLocacao, 1)[0]
+    const cliente = clientela.find(c => c._numeroCarteira === locacaoConcluida._numeroCarteira)
+    if (!cliente) throw new Error('Cliente não encontrado.')
+if (indexClienteLoc > -1) {
+        cliente._locacoes.splice(indexClienteLoc, 1)
     }
+    cliente._historico.push(locacaoConcluida._codigo)
 
-    const dataNova = new Date(filme._dataDevolucao.split('/').reverse().join('-'))
-    dataNova.setDate(dataNova.getDate() + dias)
+    const dataDevolucaoEfetiva = new Date().toLocaleDateString('pt-BR')
+    const novoHistorico = new Historico(
+        locacaoConcluida._codigo,
+        locacaoConcluida._codigoFilme,
+        locacaoConcluida._numeroCarteira,
+        locacaoConcluida._dataLocacao,
+        dataDevolucaoEfetiva
+    )
 
-    filme._dataDevolucao = dataNova.toLocaleDateString('pt-BR')
+    historico.push(novoHistorico)
 
-    const locacaoCliente = cliente._locacoes.find(l => l.codigoFilme == codigoFilme)
-    locacaoCliente.dataDevolucao = filme._dataDevolucao
-
-    salvarDados('acervoFilmes.json', acervoFilmes)
+    salvarDados('locacoes.json', locacoes)
+    salvarDados('historico.json', historico)
     salvarDados('clientela.json', clientela)
 
-    return { filme, cliente }
+    return { historico: novoHistorico, cliente }
 }
-
-function removeFilme(codigo) {
-    const cod = Number(codigo)
-    const index = acervoFilmes.findIndex(f => f._codigo === cod)
-    if (index === -1) throw new Error('Filme não encontrado.')
-    const removido = acervoFilmes.splice(index, 1)[0]
-    salvarDados('acervoFilmes.json', acervoFilmes)
-    return removido
-}
-
-function removeCliente(numeroCarteira) {
-    const carteira = String(numeroCarteira)
-    const index = clientela.findIndex(c => c._numeroCarteira === carteira)
-    if (index === -1) throw new Error('Cliente não encontrado.')
-    const removido = clientela.splice(index, 1)[0]
-    salvarDados('clientela.json', clientela)
-    return removido
-}
-
-function desligaFuncionario(matricula) {
-    const mat = Number(matricula)
-    const index = funcionarios.findIndex(f => f._matricula === mat)
-    if (index === -1) throw new Error('Funcionário não encontrado.')
-    const removido = funcionarios.splice(index, 1)[0]
-    salvarDados('funcionarios.json', funcionarios)
-    return removido
-}
-
-function desligaFornecedor(cnpj) {
-    const c = String(cnpj)
-    const index = fornecedores.findIndex(f => f._cnpj === c)
-    if (index === -1) throw new Error('Fornecedor não encontrado.')
-    const removido = fornecedores.splice(index, 1)[0]
-    salvarDados('fornecedores.json', fornecedores)
-    return removido
-}
-
-let acervoFilmes = lerDados('acervoFilmes.json')
-let clientela = lerDados('clientela.json')
-let funcionarios = lerDados('funcionarios.json')
-let fornecedores = lerDados('fornecedores.json')
 
 app.get('/', (req, res) => res.send('GERENCIADOR: LOCADORA SHOE-LEATHER'))
 
 app.get('/acervo', (req, res) => res.json(acervoFilmes))
-
 app.get('/clientela', (req, res) => res.json(clientela))
-
-app.get('/funcionarios', (req, res) => res.json(funcionarios))
-
-app.get('/fornecedores', (req, res) => res.json(fornecedores))
+app.get('/locacoes', (req, res) => res.json(locacoes))
+app.get('/historico', (req, res) => res.json(historico))
 
 app.post('/cadastrar-filme', (req, res) => {
-    const novo = cadastraFilme()
-    if (novo) {
-        res.send(`Filme ${novo._titulo} cadastrado!`)
-    } else {
-        res.status(400).send('Erro.')
+    try {
+        const novo = cadastraFilme(req.body)
+        res.status(201).json(novo)
+    } catch (e) {
+        res.status(400).json({ erro: e.message })
     }
 })
 
 app.post('/cadastrar-cliente', (req, res) => {
-    const novo = cadastraCliente()
-    if (novo) {
-        res.send(`Cliente ${novo._nome} cadastrado!`)
-    } else {
-        res.status(400).send('Erro.')
-    }
-})
-
-app.post('/cadastrar-fornecedor', (req, res) => {
-    const novo = cadastraFornecedor()
-    if (novo) {
-        res.send(`Fornecedor ${novo._nome} cadastrado!`)
-    } else {
-        res.status(400).send('Erro.')
-    }
-})
-
-app.post('/cadastrar-funcionario', (req, res) => {
-    const novo = cadastraFuncionario()
-    if (novo) {
-        res.send(`Funcionário ${novo._nome} cadastrado!`)
-    } else {
-        res.status(400).send('Erro.')
+    try {
+        const novo = cadastraCliente(req.body)
+        res.status(201).json(novo)
+    } catch (e) {
+        res.status(400).json({ erro: e.message })
     }
 })
 
@@ -546,22 +286,20 @@ app.put('/alugar-filme/:codigoFilme/:numeroCarteira', (req, res) => {
         const r = alugaFilme(codigoFilme, numeroCarteira)
         res.json({
             mensagem: `Filme "${r.filme._titulo}" alugado por ${r.cliente._nome}.`,
-            filme: r.filme,
-            cliente: r.cliente
+            locacao: r.novaLocacao
         })
     } catch (e) {
         res.status(400).json({ erro: e.message })
     }
 })
 
-app.patch('/adiar-devolucao/:codigoFilme/:dias', (req, res) => {
+app.put('/devolver-filme/:codigoFilme', (req, res) => {
     try {
-        const { codigoFilme, dias } = req.params
-        const r = adiaDevolucao(codigoFilme, parseInt(dias))
+        const { codigoFilme } = req.params
+        const r = devolveFilme(codigoFilme)
         res.json({
-            mensagem: `Devolução de "${r.filme._titulo}" adiada para ${r.filme._dataDevolucao}.`,
-            filme: r.filme,
-            cliente: r.cliente
+            mensagem: `Filme devolvido por ${r.cliente._nome}.`,
+            registro: r.historico
         })
     } catch (e) {
         res.status(400).json({ erro: e.message })
@@ -571,55 +309,41 @@ app.patch('/adiar-devolucao/:codigoFilme/:dias', (req, res) => {
 app.delete('/remover-filme/:codigo', (req, res) => {
     try {
         const codigo = parseInt(req.params.codigo)
-        const filmeRemovido = removeFilme(codigo)
-        res.json({
-            mensagem: `Filme ${filmeRemovido._titulo} removido com sucesso.`,
-            filmeRemovido
-        })
+
+        // Impede remover filme alugado
+        const alugado = locacoes.some(l => l._codigoFilme === codigo)
+        if (alugado) throw new Error('Não é possível remover. Filme está alugado.')
+
+        const index = acervoFilmes.findIndex(f => f._codigo === codigo)
+        if (index === -1) throw new Error('Filme não encontrado.')
+
+        const removido = acervoFilmes.splice(index, 1)[0]
+        salvarDados('acervoFilmes.json', acervoFilmes)
+
+        res.json({ mensagem: `Filme ${removido._titulo} removido com sucesso.`, filmeRemovido: removido })
     } catch (erro) {
-        res.status(404).json({ erro: erro.message })
+        res.status(400).json({ erro: erro.message })
     }
 })
 
 app.delete('/remover-cliente/:numeroCarteira', (req, res) => {
     try {
-        const numeroCarteira = parseInt(req.params.numeroCarteira)
-        const clienteRemovido = removeCliente(numeroCarteira)
-        res.json({
-            mensagem: `Cliente ${clienteRemovido._nome} removido com sucesso.`,
-            clienteRemovido
-        })
+        const numeroCarteira = req.params.numeroCarteira
+        const cliente = clientela.find(c => c._numeroCarteira === numeroCarteira)
+        if (!cliente) throw new Error('Cliente não encontrado.')
+
+        if (cliente._locacoes.length > 0) throw new Error('Não é possível remover. Cliente possui locações ativas.')
+
+        const index = clientela.findIndex(c => c._numeroCarteira === numeroCarteira)
+        const removido = clientela.splice(index, 1)[0]
+        salvarDados('clientela.json', clientela)
+
+        res.json({ mensagem: `Cliente ${removido._nome} removido com sucesso.`, clienteRemovido: removido })
     } catch (erro) {
-        res.status(404).json({ erro: erro.message })
+        res.status(400).json({ erro: erro.message })
     }
 })
 
-app.delete('/desligar-funcionario/:matricula', (req, res) => {
-    try {
-        const matricula = parseInt(req.params.matricula)
-        const funcionarioRemovido = desligaFuncionario(matricula)
-        res.json({
-            mensagem: `Funcionário ${funcionarioRemovido._nome} desligado com sucesso.`,
-            funcionarioRemovido
-        })
-    } catch (erro) {
-        res.status(404).json({ erro: erro.message })
-    }
-})
-
-app.delete('/desligar-fornecedor/:cnpj', (req, res) => {
-    try {
-        const cnpj = parseInt(req.params.cnpj)
-        const fornecedorRemovido = desligaFornecedor(cnpj)
-        res.json({
-            mensagem: `Fornecedor ${fornecedorRemovido._nome} removido com sucesso.`,
-            fornecedorRemovido
-        })
-    } catch (erro) {
-        res.status(404).json({ erro: erro.message })
-    }
-})
-
+// ------------------- INICIAR SERVIDOR -------------------
 const port = 3000
-
 app.listen(port, () => console.log(`Servidor rodando em http://localhost:${port}`))
