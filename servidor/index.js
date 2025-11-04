@@ -94,8 +94,23 @@ app.get('/filme', async (req, res) => {
         const dadosCompletos = await lerDados(acervo);
         const filmes = dadosCompletos.filmes;
         res.status(200).json(filmes);
-    } catch {
+    } catch (erro) {
         res.status(500).json({ erro: 'Erro ao ler acervo de filmes' });
+    }
+});
+
+app.get('/filme/:codigo', async (req, res) => {
+    try {
+        const codigo = parseInt(req.params.codigo);
+        const dadosCompletos = await lerDados(acervo);
+        const filmes = dadosCompletos.filmes;
+
+        const filmeAchado = filmes.find(f => f.codigo === codigo);
+
+        res.status(200).json(filmeAchado)
+
+    } catch (erro) {
+        res.status(400).json({ erro: `${erro.message}` });
     }
 });
 
@@ -118,12 +133,91 @@ app.post('/filme', async (req, res) => {
         filmes.push(novoFilme);
         await escreverDados(acervo, dadosCompletos);
 
-        res.status(201).json({ mensagem: `Filme ${novoFilme.titulo} cadastrado com sucesso` });
+        res.status(201).json({ mensagem: `Filme ${novoFilme._titulo} cadastrado com sucesso` });
     } catch (erro) {
         if (erro.message.includes('inválido')) {
             return res.status(400).json({ erro: erro.message });
         }
         res.status(500).json({ erro: 'Erro ao salvar o filme' });
+    }
+});
+
+app.put('/filme/:codigo', async (req, res) => {
+    try {
+        const codigo = parseInt(req.params.codigo);
+        const { titulo, ano, diretor, genero, tipoMidia } = req.body;
+
+        const dadosCompletos = await lerDados(acervo);
+        const filmes = dadosCompletos.filmes;
+
+        const index = filmes.findIndex(f => f.codigo === codigo);
+        if (index === -1) {
+            return res.status(404).json({ erro: 'Filme não encontrado' });
+        }
+
+        const filmeAtual = filmes[index];
+
+        if (titulo) filmeAtual._titulo = titulo;
+        if (ano) filmeAtual._ano = ano;
+        if (diretor) filmeAtual._diretor = diretor;
+        if (genero) filmeAtual._genero = genero;
+        if (tipoMidia) filmeAtual._tipoMidia = tipoMidia;
+
+        await escreverDados(acervo, dadosCompletos);
+
+        res.status(200).json({ mensagem: `Filme ${filmeAtual._titulo} atualizado com sucesso` });
+    } catch (erro) {
+        res.status(400).json({ erro: erro.message });
+    }
+});
+
+app.patch('/filme/:codigo', async (req, res) => {
+    try {
+        const codigo = parseInt(req.params.codigo);
+        const novosDados = req.body;
+
+        const dadosCompletos = await lerDados(acervo);
+        const filmes = dadosCompletos.filmes;
+
+        const index = filmes.findIndex(f => f.codigo === codigo);
+        if (index === -1) {
+            return res.status(404).json({ erro: 'Filme não encontrado' });
+        }
+
+        const filme = filmes[index];
+
+        if (novosDados.titulo !== undefined) filme._titulo = novosDados.titulo;
+        if (novosDados.ano !== undefined) filme._ano = novosDados.ano;
+        if (novosDados.diretor !== undefined) filme._diretor = novosDados.diretor;
+        if (novosDados.genero !== undefined) filme._genero = novosDados.genero;
+        if (novosDados.tipoMidia !== undefined) filme._tipoMidia = novosDados.tipoMidia;
+
+        await escreverDados(acervo, dadosCompletos);
+
+        res.status(200).json({ mensagem: `Filme ${filme._titulo} atualizado parcialmente com sucesso.` });
+    } catch (erro) {
+        res.status(400).json({ erro: erro.message });
+    }
+});
+
+app.delete('/filme/:codigo', async (req, res) => {
+    try {
+        const codigo = parseInt(req.params.codigo);
+
+        const dadosCompletos = await lerDados(acervo);
+        const filmes = dadosCompletos.filmes;
+
+        const index = filmes.findIndex(f => f.codigo === codigo);
+        if (index === -1) {
+            return res.status(404).json({ erro: 'Filme não encontrado' });
+        }
+
+        const filmeRemovido = filmes.splice(index, 1)[0];
+        await escreverDados(acervo, dadosCompletos);
+
+        res.status(200).json({ mensagem: `Filme ${filmeRemovido._titulo} removido com sucesso` });
+    } catch (erro) {
+        res.status(400).json({ erro: erro.message });
     }
 });
 
